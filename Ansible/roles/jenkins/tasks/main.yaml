@@ -1,0 +1,57 @@
+---
+- name: Install Java
+  ansible.builtin.dnf:
+    name: java-21-amazon-corretto
+    state: present
+
+# Add the official Jenkins repository
+- name: Add Jenkins repository
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+
+# Import Jenkins repository GPG key
+- name: Import Jenkins GPG key
+  ansible.builtin.rpm_key:
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    state: present
+
+# Install Jenkins from the official repository
+- name: Install Jenkins
+  ansible.builtin.dnf:
+    name: jenkins
+    state: present
+
+- name: Start Jenkins
+  ansible.builtin.systemd:
+    name: jenkins
+    state: started
+    enabled: true
+
+- name: Install Docker
+  ansible.builtin.dnf:
+    name: docker
+    state: present
+
+- name: Start Docker
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+
+# Add the official Trivy repository because Trivy is not available
+# in the default Amazon Linux 2023 repositories
+- name: Add Trivy repository
+  ansible.builtin.yum_repository:
+    name: trivy
+    description: Trivy repository
+    baseurl: https://aquasecurity.github.io/trivy-repo/rpm/releases/$basearch/
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://aquasecurity.github.io/trivy-repo/rpm/public.key
+
+# Install Trivy for scanning Docker images for security vulnerabilities
+- name: Install Trivy
+  ansible.builtin.dnf:
+    name: trivy
+    state: present

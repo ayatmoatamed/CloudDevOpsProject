@@ -1,0 +1,47 @@
+services:
+
+  auth-service:
+    build: ./app/auth-service
+    container_name: auth-service
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: ivolve
+    depends_on:
+      - mysql   
+
+  mysql:
+    image: mysql:8
+    container_name: mysql  
+    environment: 
+      MYSQL_ROOT_PASSWORD: password     
+      MYSQL_DATABASE: ivolve
+
+  frontend: 
+    build: ./app/frontend
+    container_name: frontend-service    
+    ports:
+      - "3000:3000"
+
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:5000
+      ROADMAP_SERVICE_URL: http://roadmap-service:8080
+      SESSION_SECRET: mysecret  
+    depends_on:
+      - auth-service 
+      - roadmap-service  
+
+
+  roadmap-service:
+    build: ./app/roadmap-service
+    container_name: roadmap-service
+    ports: 
+      - "8080:8080"
+
+
+
+
