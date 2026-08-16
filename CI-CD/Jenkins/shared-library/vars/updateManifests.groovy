@@ -7,9 +7,9 @@ def call(Map args = [:]) {
     echo "New image: ${imageUri}"
 
     sh """
-        sed -i -E 's|^[[:space:]]*image:.*|          image: ${imageUri}|' ${manifestFile}
-    """
+        sed -i -E 's|^[[:space:]]*image:.*|          image: ${imageUri}|' '${manifestFile}'
 
-    echo "Updated image:"
-    grep 'image:' ${manifestFile}
+        echo "Updated image:"
+        grep 'image:' '${manifestFile}'
+    """
 }
