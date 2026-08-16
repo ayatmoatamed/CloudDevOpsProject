@@ -26,13 +26,10 @@ pipeline {
 
         stage('Prepare environment') {
     steps {
-        withCredentials([
-            usernamePassword(
-                credentialsId: 'aws-credentials',
-                usernameVariable: 'AWS_ACCESS_KEY_ID',
-                passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-            )
-        ]) {
+        wwithCredentials([
+    [$class: 'AmazonWebServicesCredentialsBinding',
+     credentialsId: 'aws-credentials']
+]) {
             script {
                 env.AWS_ACCOUNT_ID = sh(
                     script: '''
