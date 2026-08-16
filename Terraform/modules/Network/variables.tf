@@ -4,11 +4,18 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "public_subnet_cidr" {
-  description = "CIDR block for the single public subnet"
-  type        = string
-  default     = "10.0.1.0/24"
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for the two public subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
+
+variable "public_subnet_azs" {
+  description = "Availability zones for the public subnets"
+  type        = list(string)
+   default     = ["us-east-1b", "us-east-1a"]
+}
+
 
 variable "private_subnet_cidrs" {
   description = "CIDR blocks for the two private subnets used by EKS"

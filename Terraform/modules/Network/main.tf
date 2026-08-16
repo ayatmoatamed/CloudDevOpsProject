@@ -17,18 +17,35 @@ resource "aws_internet_gateway" "igw" {
 
 }
 
-resource "aws_subnet" "public_subnet" {
+resource "aws_subnet" "public_subnet_1" {
   vpc_id = aws_vpc.ivolve_vpc.id
 
-  cidr_block = var.public_subnet_cidr
+  cidr_block = var.public_subnet_cidrs[0]
+
+  availability_zone = var.public_subnet_azs[0]
 
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "ivolve_public_subnet"
+    Name = "ivolve_public_subnet_1"
   }
   
 }
+
+resource "aws_subnet" "public_subnet_2" {
+  vpc_id = aws_vpc.ivolve_vpc.id
+
+  cidr_block = var.public_subnet_cidrs[1]
+
+  availability_zone = var.public_subnet_azs[1]
+
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "ivolve_public_subnet_2"
+  }
+}
+
 
 # ======================================================================
 
@@ -47,8 +64,13 @@ resource "aws_route_table" "public_route_table" {
 }
 
 
-resource "aws_route_table_association" "public_association" {
-  subnet_id      = aws_subnet.public_subnet.id
+resource "aws_route_table_association" "public_association_1" {
+  subnet_id      = aws_subnet.public_subnet_1.id
+  route_table_id = aws_route_table.public_route_table.id
+}
+
+resource "aws_route_table_association" "public_association_2" {
+  subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.public_route_table.id
 }
 
@@ -88,7 +110,7 @@ resource "aws_eip" "nat_eip" {
 
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat_eip.id
-  subnet_id     = aws_subnet.public_subnet.id
+  subnet_id     = aws_subnet.public_subnet_1.id
 
   tags = {
     Name = "ivolve-nat"
@@ -124,8 +146,10 @@ resource "aws_route_table_association" "private_association_2" {
 # Public NACL
 resource "aws_network_acl" "public_nacl" {
   vpc_id     = aws_vpc.ivolve_vpc.id
-  subnet_ids = [aws_subnet.public_subnet.id]
-
+  subnet_ids = [
+    aws_subnet.public_subnet_1.id,
+    aws_subnet.public_subnet_2.id
+  ]
   ingress {
     rule_no    = 100
     protocol   = "-1"
@@ -162,7 +186,7 @@ resource "aws_network_acl" "private_nacl" {
     rule_no    = 100
     protocol   = "-1"
     action     = "allow"
-    cidr_block = "10.0.0.0/16"
+    cidr_block =  var.vpc_cidr
     from_port  = 0
     to_port    = 0
   }
