@@ -3,7 +3,6 @@
 pipeline {
 agent any
 
-```
 options {
     disableConcurrentBuilds()
 }
@@ -133,7 +132,6 @@ post {
         echo "Jenkins pipeline finished for ${env.SERVICE_NAME}"
     }
 }
-```
 
 }
 
